@@ -46,6 +46,20 @@ per-file diff commands.
 
 ### Fixed
 
+- **Per-portal quoting rule moved to each portal SKILL.md; CLI search term blocks de-quoted and deduplicated**
+  (review feedback on PR #600, `.claude/skills/job-scraper/SKILL.md`,
+  `.claude/skills/job-scraper/search-queries.md`, `.claude/commands/add-portal.md`,
+  `tests/test_scrape_contract.py`, `tests/test_scrape_query_translation.py`) -
+  the per-portal quoting rule was hardcoded as a list of portal names in the
+  scraper SKILL.md, which is what #536 declined. Each portal SKILL.md now carries
+  a one-line Query syntax note instead, and SKILL.md Step 1b points readers to it.
+  The search-queries.md edit is minimal: Priority 1/2 CLI term blocks drop their
+  duplicate lines and quoted terms (plain terms only), and Step 1c now states
+  that WebSearch honors OR (the OR check is scoped to CLI blocks only). The
+  "match the `site:` target" sentence is dropped because it contradicts the
+  portal-CLI-first discovery rule. `add-portal.md` instructs the generator to
+  write the Query syntax note for new portals.
+
 - **`jobnet-search` routes external ads to employer `jobAdUrl` rather than broken `find-job` links**
   (#538, `.agents/skills/jobnet-search/cli/src/commands/search.ts`, `.agents/skills/jobnet-search/cli/README.md`,
   `.agents/skills/jobnet-search/cli/tests/search-normalization.test.ts`) - external job postings on

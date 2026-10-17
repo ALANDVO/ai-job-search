@@ -197,6 +197,7 @@ All errors are written to **stderr** as `{ "error": "...", "code": "..." }` and 
 
 ## Notes
 
+- **Query syntax:** phrase quoting is not honored; pass multi-word terms unquoted.
 - All data is from the public `jobnet.dk/bff` REST API — no credentials required.
 - The API requires the `x-csrf: 1` header; the CLI adds this automatically.
 - Pagination is 1-indexed (`--page 1` is the first page).

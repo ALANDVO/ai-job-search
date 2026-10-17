@@ -97,6 +97,7 @@ All errors are written to **stderr** as `{ "error": "...", "code": "..." }` and 
 
 ## Notes
 
+- **Query syntax:** phrase quoting is not honored; pass multi-word terms unquoted.
 - Data is from LinkedIn's public `jobs-guest` endpoints — no credentials required.
 - Page size is fixed at 10 results per page.
 - LinkedIn may rate-limit; the CLI retries 429/5xx with exponential backoff. Keep volume low (see ToS note above).

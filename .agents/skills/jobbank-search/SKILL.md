@@ -173,6 +173,7 @@ All errors are written to **stderr** as `{ "error": "...", "code": "..." }` and 
 
 ## Notes
 
+- **Query syntax:** multi-word terms are matched as phrases when quoted.
 - Data is from the public jobbank.dk RSS feed and HTML pages. Jobbank may still block automated CLI requests with Cloudflare bot protection; treat that as a portal availability failure and fall back to WebSearch.
 - RSS feed returns max 100 results per query. For higher counts, `meta.total` shows the true total.
 - The `detail` command fetches a full job page and extracts the JSON-LD structured data block.

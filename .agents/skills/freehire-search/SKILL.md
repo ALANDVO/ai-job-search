@@ -187,6 +187,7 @@ dictionaries never guess). So:
 
 ## Notes
 
+- **Query syntax:** multi-word terms are matched as phrases when quoted.
 - Data is from freehire.me's public API — no credentials required. Only per-user
   tracking (apply/save) needs a key, and this skill deliberately does not touch it:
   it is **search + detail only**.

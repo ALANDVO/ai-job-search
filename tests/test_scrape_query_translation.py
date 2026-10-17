@@ -6,8 +6,9 @@ were written in Google syntax (`site:`, `OR`, quoted phrases) and sent to
 portal CLIs, which don't support `OR` or Google-style quoting. The failure was
 silent — the search returned hits, just the wrong ones. The fix separates
 Portal CLI search terms (plain, one per call) from WebSearch `site:` fallback
-queries (labeled as Step 1c only), and SKILL.md Step 1b documents the
-per-portal quoting rule.
+queries (labeled as Step 1c only). WebSearch honors OR, so the OR check is
+scoped to CLI blocks only, and the per-portal quoting rule lives as a one-line
+Query syntax note in each portal's own SKILL.md.
 """
 import re
 import unittest
@@ -33,18 +34,29 @@ def _steps(text: str) -> dict[str, str]:
 
 
 class TestNoGoogleOperatorsInTemplates(unittest.TestCase):
-    """No portal CLI supports OR; templates must not send it to a CLI (#536)."""
+    """No portal CLI supports OR; only WebSearch fallback blocks may use it (#536).
 
-    def test_no_OR_in_query_template_code_blocks(self):
-        """Every code-block line in search-queries.md must avoid ` OR `."""
+    WebSearch honors OR, so the check is scoped to the Portal CLI search term
+    blocks (code blocks without a `site:` prefix) — the fallback blocks are
+    allowed to combine site targets with OR.
+    """
+
+    def test_no_OR_in_portal_cli_search_term_blocks(self):
+        """Portal CLI search term blocks must avoid ` OR `."""
         text = QUERIES.read_text(encoding="utf-8")
         blocks = _code_blocks(text)
         self.assertGreaterEqual(len(blocks), 1, "no code blocks found in search-queries.md")
-        for block in blocks:
+        cli_blocks = [b for b in blocks if "site:" not in b]
+        self.assertGreaterEqual(
+            len(cli_blocks), 4,
+            "search-queries.md must have at least 4 Portal CLI search term blocks "
+            "(one per priority category) without site: prefixes",
+        )
+        for block in cli_blocks:
             for line in block.strip().splitlines():
                 # `OR` as a standalone word between terms is the bug from #536.
-                # Query templates are the only content in these code blocks, so
-                # any OR is a portal-incompatible operator.
+                # Portal CLI search term blocks are the only content checked —
+                # any OR there is a portal-incompatible operator.
                 self.assertNotRegex(
                     line, r"\bOR\b",
                     f"search-queries.md must not send OR to portal CLIs: {line!r}",
@@ -53,7 +65,6 @@ class TestNoGoogleOperatorsInTemplates(unittest.TestCase):
 
 class TestSearchQueriesSeparateCliAndWebSearch(unittest.TestCase):
     """site: queries must be WebSearch fallback only; CLI terms must be plain."""
-
     def test_has_portal_cli_search_terms_sections(self):
         """Each priority section must list plain CLI search terms per call."""
         text = QUERIES.read_text(encoding="utf-8")
@@ -87,8 +98,49 @@ class TestSearchQueriesSeparateCliAndWebSearch(unittest.TestCase):
         )
 
 
+class TestCliSearchTermsArePlainUnquoted(unittest.TestCase):
+    """Portal CLI search term blocks must carry plain (unquoted) terms (#536).
+
+    Quoting is a per-portal concern documented in each portal's SKILL.md
+    Query syntax note — the template itself must not pre-quote terms, because
+    that misleads scrapers into sending literal quote characters to portals
+    that don't honor them (the Priority 1/2 blocks shipped quoted and duplicated).
+    """
+
+    def test_cli_search_term_blocks_have_no_quoted_terms(self):
+        """No line in a CLI search term block may be a fully quoted phrase."""
+        text = QUERIES.read_text(encoding="utf-8")
+        blocks = _code_blocks(text)
+        cli_blocks = [b for b in blocks if "site:" not in b]
+        self.assertGreaterEqual(len(cli_blocks), 4, "need at least 4 CLI term blocks")
+        for block in cli_blocks:
+            for line in block.strip().splitlines():
+                stripped = line.strip()
+                self.assertFalse(
+                    stripped.startswith('"') and stripped.endswith('"'),
+                    f"Portal CLI search term must not be wrapped in quotes: {line!r}",
+                )
+
+    def test_no_duplicate_lines_in_cli_search_term_blocks(self):
+        """No CLI search term block may repeat the same term twice."""
+        text = QUERIES.read_text(encoding="utf-8")
+        blocks = _code_blocks(text)
+        cli_blocks = [b for b in blocks if "site:" not in b]
+        self.assertGreaterEqual(len(cli_blocks), 4, "need at least 4 CLI term blocks")
+        for i, block in enumerate(cli_blocks):
+            lines = [l.strip() for l in block.strip().splitlines() if l.strip()]
+            seen = set()
+            for line in lines:
+                self.assertNotIn(
+                    line, seen,
+                    f"Duplicate CLI search term in block {i}: {line!r}",
+                )
+                seen.add(line)
+
+
 class TestSkill1bDocumentsQuotingRules(unittest.TestCase):
-    """SKILL.md Step 1b must document per-portal quoting and one-term-per-call."""
+    """Step 1b must point each portal to its own SKILL.md Query syntax note,
+    not hardcode a per-portal quoting list (#536)."""
 
     @classmethod
     def setUpClass(cls):
@@ -105,24 +157,64 @@ class TestSkill1bDocumentsQuotingRules(unittest.TestCase):
             "Step 1b must instruct one plain term per CLI call (no OR, no combined strings)",
         )
 
-    def test_step1b_names_portals_that_support_phrase_quoting(self):
-        """Step 1b must name jobindex, jobbank, freehire as phrase-quote portals."""
+    def test_step1b_references_portal_skill_docs_for_quoting(self):
+        """Step 1b must point each portal to its own SKILL.md for the quoting rule,
+        not hardcode a portal list."""
         lower = self.step1b.lower()
-        self.assertIn("quot", lower,
-            "Step 1b must mention quoting to document the per-portal rule")
-        for portal in ("jobindex", "jobbank", "freehire"):
-            self.assertIn(
-                portal, self.step1b,
-                f"Step 1b must name {portal} as a portal that supports phrase quoting",
-            )
+        self.assertIn(
+            "quot", lower,
+            "Step 1b must mention quoting and point each portal's SKILL.md",
+        )
+        self.assertIn(
+            "query syntax", lower,
+            "Step 1b must reference each portal's SKILL.md Query syntax note",
+        )
+        # The quoting rule must not hardcode portal names — it references each
+        # portal's own SKILL.md instead.
+        self.assertNotIn(
+            "quote multi-word terms on", lower,
+            "Step 1b must not hardcode a portal quoting list — each portal's "
+            "SKILL.md carries the rule instead",
+        )
 
-    def test_step1b_names_portals_that_dont_support_phrase_quoting(self):
-        """Step 1b must instruct omitting quotes on jobnet and LinkedIn."""
-        lower = self.step1b.lower()
-        self.assertIn("omit quotes", lower,
-            "Step 1b must say to omit quotes on portals that don't support phrase matching")
-        self.assertIn("linkedin", lower,
-            "Step 1b must name LinkedIn as a portal that does not support phrase quoting")
+
+class TestSkill1bDoesNotMatchSiteTarget(unittest.TestCase):
+    """Step 1b must not match `site:` targets to decide which CLI to invoke (#536).
+
+    The discovery rule is portal-CLI-first: /scrape runs every installed portal
+    CLI, and WebSearch fallbacks only for portals without a CLI. Matching a
+    `site:` target to pick a CLI contradicts that discovery rule and the
+    intro's "you do not need a matching `site:` line" guarantee.
+    """
+
+    def test_step1b_has_no_site_target_matching(self):
+        text = SKILL.read_text(encoding="utf-8")
+        self.assertNotIn(
+            "Match the `site:` target", text,
+            "Step 1b must not match site: targets to decide which CLI to invoke",
+        )
+
+
+class TestSkill1cHonorsOr(unittest.TestCase):
+    """Step 1c must state that WebSearch honors OR (#536)."""
+
+    @classmethod
+    def setUpClass(cls):
+        text = SKILL.read_text(encoding="utf-8")
+        steps = _steps(text)
+        cls.step1 = steps.get("Step 1: Search", "")
+        cls.step1c = cls.step1.partition("#### 1c.")[2]
+
+    def test_step1c_says_websearch_honors_or(self):
+        lower = self.step1c.lower()
+        self.assertIn(
+            "honors", lower,
+            "Step 1c must state that WebSearch honors OR",
+        )
+        self.assertNotIn(
+            "not documented to honor", lower,
+            "Step 1c must not claim WebSearch does not honor OR",
+        )
 
 
 class TestSkill1cLabelsSiteQueriesAsFallbackOnly(unittest.TestCase):

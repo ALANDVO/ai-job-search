@@ -163,6 +163,7 @@ All errors are written to **stderr** as `{ "error": "...", "code": "..." }` and 
 
 ## Notes
 
+- **Query syntax:** multi-word terms are matched as phrases when quoted.
 - All data is from the public `jobindex.dk` API — no credentials required.
 - Page size is fixed at 20 results per page (Jobindex API limitation).
 - Area/region filtering via API params does not work — include city names in `--query` instead.

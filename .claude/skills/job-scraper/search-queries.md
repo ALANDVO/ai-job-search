@@ -33,13 +33,12 @@ Queries are grouped by priority. Write **each category in every language from yo
 
 These match your strongest and most desired career direction.
 
-**Portal CLI search terms** — run each as a separate call (one term per call). See `SKILL.md` Step 1b for the per-portal quoting rule (quote multi-word terms on jobindex, jobbank, and freehire; omit quotes on jobnet and LinkedIn). Append your `[YOUR_CITY]` / `[YOUR_COUNTRY]` / `[YOUR_REGION]` location terms per the portal's convention.
+**Portal CLI search terms** — run each as a separate call (one term per call). See `SKILL.md` Step 1b and each portal's `SKILL.md` **Query syntax** note for the per-portal quoting rule. Append your `[YOUR_CITY]` / `[YOUR_COUNTRY]` / `[YOUR_REGION]` location terms per the portal's convention.
 
 ```
-"[YOUR_PRIMARY_JOB_TITLE_1]"
-"[YOUR_PRIMARY_JOB_TITLE_2]"
-"[YOUR_KEY_SKILL]"
-"[YOUR_PRIMARY_JOB_TITLE_1]"
+[YOUR_PRIMARY_JOB_TITLE_1]
+[YOUR_PRIMARY_JOB_TITLE_2]
+[YOUR_KEY_SKILL]
 ```
 
 **WebSearch fallback queries** (`site:` strings — Step 1c only):
@@ -58,9 +57,8 @@ These match your domain expertise.
 **Portal CLI search terms** — run each as a separate call (one term per call). See `SKILL.md` Step 1b for the per-portal quoting rule. Append your location terms per the portal's convention.
 
 ```
-"[YOUR_DOMAIN_KEYWORD_1]"
-"[YOUR_DOMAIN_KEYWORD_2]"
-"[YOUR_DOMAIN_KEYWORD_1]"
+[YOUR_DOMAIN_KEYWORD_1]
+[YOUR_DOMAIN_KEYWORD_2]
 ```
 
 **WebSearch fallback queries** (`site:` strings — Step 1c only):
@@ -79,8 +77,8 @@ Adjacent roles you could pivot into.
 **Portal CLI search terms** — run each as a separate call (one term per call). See `SKILL.md` Step 1b for the per-portal quoting rule. Append your location terms per the portal's convention.
 
 ```
-"[YOUR_ADJACENT_TITLE_1]"
-"[YOUR_ADJACENT_TITLE_2]"
+[YOUR_ADJACENT_TITLE_1]
+[YOUR_ADJACENT_TITLE_2]
 ```
 
 **WebSearch fallback queries** (`site:` strings — Step 1c only):
@@ -97,9 +95,9 @@ Wider net for general technical roles.
 **Portal CLI search terms** — run each as a separate call (one term per call). See `SKILL.md` Step 1b for the per-portal quoting rule. Append your location terms per the portal's convention.
 
 ```
-"[YOUR_KEY_SKILL]"
-"[YOUR_KEY_SKILL] developer"
-"technical consultant"
+[YOUR_KEY_SKILL]
+[YOUR_KEY_SKILL] developer
+technical consultant
 ```
 
 **WebSearch fallback queries** (`site:` strings — Step 1c only):

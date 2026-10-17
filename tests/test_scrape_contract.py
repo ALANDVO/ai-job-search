@@ -75,6 +75,27 @@ class ScrapeSearchOutputContractTests(unittest.TestCase):
 
 
 
+class PortalQuerySyntaxTests(unittest.TestCase):
+    """Each portal SKILL.md must carry a one-line Query syntax note documenting
+    its per-portal quoting rule (#536 — the rule must not be hardcoded in the
+    scraper SKILL.md; it lives per-portal, discovered from the tree)."""
+
+    def test_every_portal_skill_docs_query_syntax(self):
+        failures: list[str] = []
+        for portal in PORTAL_CLIS:
+            skill = portal / "SKILL.md"
+            if not skill.exists():
+                failures.append(f"{portal.name}: no SKILL.md")
+                continue
+            text = skill.read_text(encoding="utf-8")
+            if "Query syntax" not in text:
+                failures.append(f"{portal.name}: SKILL.md lacks a Query syntax note")
+                continue
+            if "quot" not in text.lower():
+                failures.append(f"{portal.name}: Query syntax note says nothing about quoting")
+        self.assertEqual([], failures, "; ".join(failures) or "no portals checked")
+
+
 # Step 4's storage schema, derived the same way as the Step 2 contract above:
 # the field list lives in the spec, never duplicated here, so a schema change
 # fails this test instead of silently agreeing with a stale copy.

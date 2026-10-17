@@ -221,6 +221,7 @@ All errors are written to **stderr** as `{ "error": "...", "code": "..." }` and 
 
 ## Notes
 
+- **Query syntax:** phrase quoting is not honored; pass multi-word terms unquoted.
 - All data is from the public Jobdanmark.dk API — no credentials required.
 - Pagination is 1-indexed (`--page 1` is the first page). 30 items per page, server-enforced.
 - The `detail` command fetches the HTML job page and parses embedded JSON-LD when available, with a rendered-HTML fallback for pages that omit structured data. It does not use a separate JSON API.
